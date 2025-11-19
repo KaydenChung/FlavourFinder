@@ -59,5 +59,5 @@ class RecipeGenerateRequest(BaseModel):
     
 # Recipe Modification Request
 class RecipeModifyRequest(BaseModel):
-    recipe_id: str
+    original_recipe: dict
     modification: str

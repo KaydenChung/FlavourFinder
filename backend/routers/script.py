@@ -4,7 +4,6 @@ from models.recipe import Recipe, RecipeGenerateRequest, RecipeModifyRequest
 from services.recipeService import recipeService
 from services.imageService import imageService
 import uuid
-
 router = APIRouter(prefix="/recipes", tags=["recipes"])
 recipe_service = recipeService()
 image_service = imageService()
@@ -13,6 +12,7 @@ image_service = imageService()
 @router.post("/generate", response_model=Recipe)
 async def generate_recipe(request: RecipeGenerateRequest):
     try:
+
         # Generate Recipe with Groq
         recipe_data = recipe_service.generate_recipe(
             preferences=request.preferences,
@@ -43,24 +43,19 @@ async def generate_recipe(request: RecipeGenerateRequest):
 @router.post("/modify", response_model=Recipe)
 async def modify_recipe(request: RecipeModifyRequest):
     try:
-        original_recipe = {}
         
-        # Modify Recipe
+        # Modify Recipe with Groq
         modified_data = recipe_service.modify_recipe(
-            original_recipe,
+            request.original_recipe,
             request.modification
         )
         
         # Create Complete Recipe
-        recipe = Recipe(
-            id=request.recipe_id,
-            **modified_data
-        )
-        
+        recipe = Recipe(**modified_data)
+
         # Return Recipe
         return recipe
     
-    # Handle Errors
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
