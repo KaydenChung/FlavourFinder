@@ -7,26 +7,7 @@ import SwiftUI
 
 struct ContentView: View {
     
-    init() {
-        
-//        // Configure Tab Bar Appearance
-//        let appearance = UITabBarAppearance()
-//        appearance.configureWithOpaqueBackground()
-//        appearance.backgroundColor = UIColor(Color.cardBackground)
-//        
-//        // Selected Item Colour
-//        appearance.stackedLayoutAppearance.selected.iconColor = UIColor(Color.neonBlue)
-//        appearance.stackedLayoutAppearance.selected.titleTextAttributes = [
-//            .foregroundColor: UIColor(Color.neonBlue)
-//        ]
-//        
-//        // Unselected Item Color
-//        appearance.stackedLayoutAppearance.normal.iconColor = UIColor.gray
-//        appearance.stackedLayoutAppearance.normal.titleTextAttributes = [
-//            .foregroundColor: UIColor.gray
-//        ]
-        
-    }
+    init() {}
     
     var body: some View {
         
@@ -57,7 +38,9 @@ struct ContentView: View {
                     }
                 
             }
+            
         }
+        
     }
 }
 

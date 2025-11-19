@@ -24,34 +24,14 @@ struct Modifications: View {
             
             VStack(spacing: 0) {
                 
-                // Header
+                // Cancel Button
                 HStack {
-                    
-                    // Cancel Button
                     Button(action: { dismiss() }) {
                         Text("Cancel")
                             .foregroundColor(.neonBlue)
                             .fontWeight(.medium)
                     }
-                    
                     Spacer()
-                    
-                    // Recipe Title
-                    Text(recipe.title)
-                        .font(.headline)
-                        .fontWeight(.semibold)
-                        .foregroundStyle(LinearGradient(colors: [.neonBlue, .neonPink], startPoint: .leading, endPoint: .trailing))
-                        .lineLimit(1)
-                    
-                    Spacer()
-                    
-                    // Invisible Button for Centering
-                    Button(action: {}) {
-                        Text("Cancel")
-                            .foregroundColor(.clear)
-                    }
-                    .disabled(true)
-                    
                 }
                 .padding(.horizontal, 25)
                 .padding(.vertical, 25)
@@ -63,20 +43,35 @@ struct Modifications: View {
                     Spacer()
                     
                     // Input Header
-                    Text("What would you like to change?")
+                    Text("What Modifications Would You Like?")
                         .font(.title3)
                         .fontWeight(.bold)
-                        .foregroundColor(.white)
+                        .foregroundColor(.neonBlue)
                     
                     // Input Field
-                    TextField("e.g., make it vegan, reduce cooking time", text: $modification, axis: .vertical)
-                        .textFieldStyle(.roundedBorder)
-                        .lineLimit(3...6)
-                        .padding()
-                        .background(Color.cardBackground)
-                        .cornerRadius(10)
-                        .padding(.horizontal)
-                        .tint(.neonPink)
+                    ZStack(alignment: .topLeading) {
+                        TextEditor(text: $modification)
+                            .frame(minHeight: 100)
+                            .scrollContentBackground(.hidden)
+                            .background(Color.clear)
+                            .foregroundColor(.neonPink)
+                            .tint(.neonPink)
+                            .padding(12)
+                        if modification.isEmpty {
+                            Text("e.g. Different ingredient, Less cook time")
+                                .foregroundColor(.neonPink.opacity(0.5))
+                                .padding(.horizontal, 15)
+                                .padding(.vertical, 25)
+                                .allowsHitTesting(false)
+                        }
+                    }
+                    .background(Color.darkBackground)
+                    .cornerRadius(10)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 10)
+                            .stroke(Color.neonBlue.opacity(0.5), lineWidth: 1)
+                    )
+                    .padding(.horizontal)
                     
                     // Modify Recipe Button
                     Button(action: modifyRecipe) {
@@ -123,7 +118,7 @@ struct Modifications: View {
                 
                 // Request Modification from Backend
                 var modifiedRecipe = try await NetworkService.shared.modifyRecipe(
-                    recipeId: recipe.id,
+                    recipe: recipe,
                     modification: modification
                 )
                 

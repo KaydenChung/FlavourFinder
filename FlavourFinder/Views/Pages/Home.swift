@@ -30,6 +30,7 @@ struct Home: View {
                         .font(.largeTitle)
                         .fontWeight(.bold)
                         .foregroundStyle(LinearGradient(colors: [.neonBlue, .neonPink], startPoint: .leading, endPoint: .trailing))
+                    
                     Spacer()
                     
                     // Generate Recipe Button
@@ -84,7 +85,11 @@ struct Home: View {
                         }
                         
                         // Display Recipe Cards
-                        ForEach(recipes) { recipe in Card(recipe: recipe)}
+                        ForEach(recipes.indices, id: \.self) { index in
+                            Card(recipe: recipes[index]) { modifiedRecipe in
+                                recipes[index] = modifiedRecipe
+                            }
+                        }
                         
                     }
                     .padding()

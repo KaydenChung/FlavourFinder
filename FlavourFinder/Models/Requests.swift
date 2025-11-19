@@ -19,11 +19,11 @@ struct GenerateRecipeRequest: Codable {
 
 // Modify Recipe Request Model
 struct ModifyRecipeRequest: Codable {
-    let recipeId: String
+    let originalRecipe: Recipe
     let modification: String
     
     enum CodingKeys: String, CodingKey {
-        case recipeId = "recipe_id"
+        case originalRecipe = "original_recipe"
         case modification
     }
 }

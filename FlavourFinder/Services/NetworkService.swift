@@ -16,7 +16,7 @@ enum NetworkError: Error {
 class NetworkService {
     
     static let shared = NetworkService()
-    private let baseURL = "http://localhost:8000"
+    private let baseURL = "https://flavourfinder-5dkq.onrender.com"
     private init() {}
     
     // Validate Server HTTP Response
@@ -58,7 +58,7 @@ class NetworkService {
     }
     
     // Modify Existing Recipe
-    func modifyRecipe(recipeId: String, modification: String) async throws -> Recipe {
+    func modifyRecipe(recipe: Recipe, modification: String) async throws -> Recipe {
         guard let url = URL(string: "\(baseURL)/recipes/modify") else {
             throw NetworkError.invalidURL
         }
@@ -69,7 +69,7 @@ class NetworkService {
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         
         // Create Request Body
-        let body = ModifyRecipeRequest(recipeId: recipeId, modification: modification)
+        let body = ModifyRecipeRequest(originalRecipe: recipe, modification: modification)
         request.httpBody = try JSONEncoder().encode(body)
         
         // Send Request

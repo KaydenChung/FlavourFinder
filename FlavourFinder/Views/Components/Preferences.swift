@@ -116,17 +116,22 @@ struct Preferences: View {
                             onGenerate(tempPreferences)
                             dismiss()
                         }) {
-                            HStack {
-                                Spacer()
+                            ZStack {
+                                RoundedRectangle(cornerRadius: 10)
+                                    .fill(LinearGradient(colors: [.neonBlue, .neonPink], startPoint: .leading, endPoint: .trailing))
+                                    .shadow(color: .neonPink.opacity(0.5), radius: 10)
+                                    .shadow(color: .neonBlue.opacity(0.5), radius: 10)
                                 Label("Generate Recipe", systemImage: "sparkles")
                                     .fontWeight(.bold)
-                                    .foregroundColor(.neonBlue)
-                                Spacer()
+                                    .foregroundColor(.white)
                             }
+                            .frame(height: 50)
                         }
-                        .tint(.neonBlue)
+                        .buttonStyle(.plain)
+                        .listRowInsets(EdgeInsets())
                     }
-                    .listRowBackground(Color.cardBackground)
+                    .listRowBackground(Color.clear)
+                    
                 }
                 .scrollContentBackground(.hidden)
             }

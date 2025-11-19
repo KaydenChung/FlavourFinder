@@ -8,6 +8,7 @@ import SwiftUI
 struct Card: View {
     
     let recipe: Recipe
+    let onModified: (Recipe) -> Void
     @State private var showFullRecipe = false
     @State private var showModify = false
 
@@ -56,7 +57,7 @@ struct Card: View {
                                 .fontWeight(.semibold)
                                 .padding(.horizontal, 10)
                                 .padding(.vertical, 5)
-                                .background(LinearGradient(colors: [.neonPink.opacity(0.5), .neonBlue.opacity(0.5)], startPoint: .leading, endPoint: .trailing))
+                                .background(LinearGradient(colors: [.neonBlue.opacity(0.5), .neonPink.opacity(0.5)], startPoint: .leading, endPoint: .trailing))
                                 .foregroundColor(.white)
                                 .cornerRadius(10)
                         }
@@ -85,7 +86,7 @@ struct Card: View {
                     
                     // Recipe Calories
                     Label("\(recipe.macros.calories) cal", systemImage: "flame.fill")
-                        .foregroundStyle(LinearGradient(colors: [.neonPink, .neonBlue], startPoint: .leading, endPoint: .trailing))
+                        .foregroundStyle(LinearGradient(colors: [.neonBlue, .neonPink], startPoint: .leading, endPoint: .trailing))
                         .font(.subheadline)
                         .fontWeight(.medium)
                     
@@ -122,10 +123,9 @@ struct Card: View {
                             .padding(.vertical, 10)
                     }
                     .buttonStyle(.plain)
-                    .background(LinearGradient(colors: [.neonPink, .neonBlue], startPoint: .leading, endPoint: .trailing))
+                    .background(Color.gray.opacity(0.5))
                     .foregroundColor(.white)
                     .cornerRadius(10)
-                    .shadow(color: .neonPink.opacity(0.5), radius: 5)
                     
                     // Modify Button
                     Button(action: { showModify = true }) {
@@ -142,6 +142,7 @@ struct Card: View {
                     .shadow(color: .neonBlue.opacity(0.5), radius: 5)
                     
                 }
+                
             }
             .padding(25)
         }
@@ -149,16 +150,15 @@ struct Card: View {
         .background(Color.cardBackground)
         .cornerRadius(25)
         .shadow(color: .black.opacity(0.5), radius: 25, y: 5)
-        
         // Show Details View
         .sheet(isPresented: $showFullRecipe) {
             Details(recipe: recipe)
         }
-        
         // Show Modifications View
         .sheet(isPresented: $showModify) {
-            Modifications(recipe: recipe, onModified: { _ in })
+            Modifications(recipe: recipe, onModified: { modifiedRecipe in
+                onModified(modifiedRecipe)
+            })
         }
-        
     }
 }
