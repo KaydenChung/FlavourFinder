@@ -7,9 +7,18 @@ import SwiftUI
 
 @main
 struct FlavourFinderApp: App {
+    
+    @StateObject private var authManager = AuthManager.shared
+    
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            Group {
+                if authManager.isAuthenticated {
+                    ContentView()
+                } else {
+                    Auth()
+                }
+            }
         }
     }
 }

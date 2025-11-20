@@ -16,7 +16,8 @@ enum NetworkError: Error {
 class NetworkService {
     
     static let shared = NetworkService()
-    private let baseURL = "https://flavourfinder-5dkq.onrender.com"
+    private let baseURL = "http:localhost:8000" //"https://flavourfinder-5dkq.onrender.com"
+    
     private init() {}
     
     // Validate Server HTTP Response
@@ -35,10 +36,16 @@ class NetworkService {
             throw NetworkError.invalidURL
         }
         
+        // Get Auth Token
+        guard let token = AuthManager.shared.getAccessToken() else {
+            throw NetworkError.serverError("Not authenticated")
+        }
+        
         // Create POST Request
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         
         // Create Request Body
         let body = GenerateRecipeRequest(
@@ -63,10 +70,16 @@ class NetworkService {
             throw NetworkError.invalidURL
         }
         
+        // Get Auth Token
+        guard let token = AuthManager.shared.getAccessToken() else {
+            throw NetworkError.serverError("Not authenticated")
+        }
+        
         // Create POST Request
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         
         // Create Request Body
         let body = ModifyRecipeRequest(originalRecipe: recipe, modification: modification)
@@ -80,5 +93,7 @@ class NetworkService {
         
         // Decode Recipe Response
         return try JSONDecoder().decode(Recipe.self, from: data)
+        
     }
+    
 }

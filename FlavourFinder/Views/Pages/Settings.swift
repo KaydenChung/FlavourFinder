@@ -8,7 +8,10 @@ import SwiftUI
 struct Settings: View {
     
     @StateObject private var preferencesManager = PreferencesManager.shared
+    @StateObject private var authManager = AuthManager.shared
     @State private var showSaved = false
+    @State private var showLogoutConfirm = false
+    @State private var isLoggingOut = false
     
     var body: some View {
         
@@ -27,6 +30,26 @@ struct Settings: View {
                         .foregroundStyle(LinearGradient(colors: [.neonBlue, .neonPink], startPoint: .leading, endPoint: .trailing))
                     
                     Spacer()
+                    
+                    // Logout Button
+                    Button(action: { showLogoutConfirm = true }) {
+                        ZStack {
+                            Circle()
+                                .fill(Color.red.opacity(0.2))
+                                .frame(width: 40, height: 40)
+                            
+                            if isLoggingOut {
+                                ProgressView()
+                                    .tint(.red)
+                            } else {
+                                Image(systemName: "arrow.right.square.fill")
+                                    .foregroundColor(.red)
+                                    .font(.system(size: 20))
+                            }
+                        }
+                    }
+                    .disabled(isLoggingOut)
+                    
                 }
                 .padding(.horizontal, 25)
                 .padding(.vertical, 25)
@@ -113,6 +136,33 @@ struct Settings: View {
             Text("Your default preferences have been updated.")
         }
         
+        // Logout Confirmation Alert
+        .alert("Log Out", isPresented: $showLogoutConfirm) {
+            Button("Cancel", role: .cancel) {}
+            Button("Log Out", role: .destructive) {
+                logout()
+            }
+        } message: {
+            Text("Are you sure you want to log out?")
+        }
+        
+    }
+    
+    // Logout Function
+    private func logout() {
+        Task {
+            isLoggingOut = true
+            
+            do {
+                try await authManager.signOut()
+            } catch {
+                print("Error logging out: \(error)")
+            }
+            
+            await MainActor.run {
+                isLoggingOut = false
+            }
+        }
     }
 }
 
