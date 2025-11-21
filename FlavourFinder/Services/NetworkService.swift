@@ -16,7 +16,7 @@ enum NetworkError: Error {
 class NetworkService {
     
     static let shared = NetworkService()
-    private let baseURL = "http://localhost:8000"
+    private let baseURL = "https://flavourfinder-5dkq.onrender.com"
     
     private init() {}
     
