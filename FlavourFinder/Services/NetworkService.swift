@@ -5,18 +5,18 @@
 
 import Foundation
 
-// Network Error Types
+// Error Types
 enum NetworkError: Error {
     case invalidURL
     case decodingError
     case serverError(String)
+    case notAuthenticated
 }
 
-// Network Service for Backend API Calls
 class NetworkService {
     
     static let shared = NetworkService()
-    private let baseURL = "http:localhost:8000" //"https://flavourfinder-5dkq.onrender.com"
+    private let baseURL = "http://localhost:8000"
     
     private init() {}
     
@@ -30,70 +30,150 @@ class NetworkService {
         }
     }
     
-    // Generate New Recipe
+    // Creates Request with Auth Tokens
+    private func authenticatedRequest(url: URL) throws -> URLRequest {
+        guard let token = AuthManager.shared.getAccessToken() else {
+            throw NetworkError.notAuthenticated
+        }
+        var request = URLRequest(url: url)
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        return request
+    }
+    
+    // Generate Recipe
     func generateRecipe(preferences: UserPreferences, existingRecipes: [Recipe] = []) async throws -> Recipe {
         guard let url = URL(string: "\(baseURL)/recipes/generate") else {
             throw NetworkError.invalidURL
         }
         
-        // Get Auth Token
-        guard let token = AuthManager.shared.getAccessToken() else {
-            throw NetworkError.serverError("Not authenticated")
-        }
-        
-        // Create POST Request
-        var request = URLRequest(url: url)
+        var request = try authenticatedRequest(url: url)
         request.httpMethod = "POST"
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         
-        // Create Request Body
         let body = GenerateRecipeRequest(
             preferences: preferences,
             existingRecipes: existingRecipes.map { $0.title }
         )
         request.httpBody = try JSONEncoder().encode(body)
         
-        // Send Request
         let (data, response) = try await URLSession.shared.data(for: request)
-        
-        // Validate Server Response
         try validate(response)
         
-        // Decode Recipe Response
         return try JSONDecoder().decode(Recipe.self, from: data)
     }
     
-    // Modify Existing Recipe
+    // Modify Recipe
     func modifyRecipe(recipe: Recipe, modification: String) async throws -> Recipe {
         guard let url = URL(string: "\(baseURL)/recipes/modify") else {
             throw NetworkError.invalidURL
         }
         
-        // Get Auth Token
-        guard let token = AuthManager.shared.getAccessToken() else {
-            throw NetworkError.serverError("Not authenticated")
-        }
-        
-        // Create POST Request
-        var request = URLRequest(url: url)
+        var request = try authenticatedRequest(url: url)
         request.httpMethod = "POST"
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         
-        // Create Request Body
         let body = ModifyRecipeRequest(originalRecipe: recipe, modification: modification)
         request.httpBody = try JSONEncoder().encode(body)
         
-        // Send Request
         let (data, response) = try await URLSession.shared.data(for: request)
-        
-        // Validate Server Response
         try validate(response)
         
-        // Decode Recipe Response
         return try JSONDecoder().decode(Recipe.self, from: data)
-        
     }
     
+    // Save a Recipe
+    func saveRecipe(_ recipe: Recipe) async throws {
+        guard let url = URL(string: "\(baseURL)/recipes/save") else {
+            throw NetworkError.invalidURL
+        }
+        
+        var request = try authenticatedRequest(url: url)
+        request.httpMethod = "POST"
+        request.httpBody = try JSONEncoder().encode(recipe)
+        
+        let (_, response) = try await URLSession.shared.data(for: request)
+        try validate(response)
+    }
+    
+    // Unsave a Recipe
+    func unsaveRecipe(recipeId: String) async throws {
+        guard let url = URL(string: "\(baseURL)/recipes/save/\(recipeId)") else {
+            throw NetworkError.invalidURL
+        }
+        
+        var request = try authenticatedRequest(url: url)
+        request.httpMethod = "DELETE"
+        
+        let (_, response) = try await URLSession.shared.data(for: request)
+        try validate(response)
+    }
+    
+    // Get Saved Recipes
+    func getSavedRecipes() async throws -> [Recipe] {
+        guard let url = URL(string: "\(baseURL)/recipes/saved") else {
+            throw NetworkError.invalidURL
+        }
+        
+        var request = try authenticatedRequest(url: url)
+        request.httpMethod = "GET"
+        
+        let (data, response) = try await URLSession.shared.data(for: request)
+        try validate(response)
+        
+        let result = try JSONDecoder().decode(SavedRecipesResponse.self, from: data)
+        return result.recipes.compactMap { $0.recipeData }
+    }
+    
+    // Get User Preferences
+    func getPreferences() async throws -> UserPreferences {
+        guard let url = URL(string: "\(baseURL)/preferences") else {
+            throw NetworkError.invalidURL
+        }
+        
+        var request = try authenticatedRequest(url: url)
+        request.httpMethod = "GET"
+        
+        let (data, response) = try await URLSession.shared.data(for: request)
+        try validate(response)
+        
+        return try JSONDecoder().decode(UserPreferences.self, from: data)
+    }
+    
+    // Update User Preferences
+    func updatePreferences(_ preferences: UserPreferences) async throws -> UserPreferences {
+        guard let url = URL(string: "\(baseURL)/preferences") else {
+            throw NetworkError.invalidURL
+        }
+        
+        var request = try authenticatedRequest(url: url)
+        request.httpMethod = "PUT"
+        request.httpBody = try JSONEncoder().encode(preferences)
+        
+        let (data, response) = try await URLSession.shared.data(for: request)
+        try validate(response)
+        
+        return try JSONDecoder().decode(UserPreferences.self, from: data)
+    }
+}
+
+// Saved Recipe Response Model
+struct SavedRecipesResponse: Codable {
+    let recipes: [SavedRecipeItem]
+}
+
+// Saved Recipe Item
+struct SavedRecipeItem: Codable {
+    
+    let id: String
+    let userId: String
+    let recipeId: String
+    let recipeData: Recipe?
+    let createdAt: String
+    
+    enum CodingKeys: String, CodingKey {
+        case id
+        case userId = "user_id"
+        case recipeId = "recipe_id"
+        case recipeData = "recipe_data"
+        case createdAt = "created_at"
+    }
 }

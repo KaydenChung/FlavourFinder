@@ -12,6 +12,10 @@ struct Settings: View {
     @State private var showSaved = false
     @State private var showLogoutConfirm = false
     @State private var isLoggingOut = false
+    @State private var isLoading = false
+    @State private var isSaving = false
+    @State private var showError = false
+    @State private var errorMessage = ""
     
     var body: some View {
         
@@ -55,102 +59,177 @@ struct Settings: View {
                 .padding(.vertical, 25)
                 .background(Color.darkBackground)
                 
-                // Preferences Form
-                Form {
-                    
-                    // Preference Information
-                    Section {
-                        Text("Set your default recipe preferences. These will be used when generating new recipes, but you can adjust them before each generation.")
-                            .font(.subheadline)
+                if isLoading {
+                    Spacer()
+                    VStack(spacing: 15) {
+                        ProgressView()
+                            .scaleEffect(1.5)
+                            .tint(.neonBlue)
+                        Text("Loading preferences...")
                             .foregroundColor(.gray)
                     }
-                    .listRowBackground(Color.cardBackground)
+                    Spacer()
+                } else {
                     
-                    // Effort Preference
-                    PreferenceSection(
-                        title: "Effort Level",
-                        subtitle: "How much time do you have?",
-                        value: $preferencesManager.preferences.effortLevel,
-                        labels: ["Quick", "Moderate", "Intricate"]
-                    )
-                    
-                    // Skill Preference
-                    PreferenceSection(
-                        title: "Skill Level",
-                        subtitle: "What is your cooking confidence?",
-                        value: $preferencesManager.preferences.skillLevel,
-                        labels: ["Beginner", "Intermediate", "Advanced"]
-                    )
-                    
-                    // Calorie Preference
-                    PreferenceSection(
-                        title: "Calorie Consciousness",
-                        subtitle: "How low-calorie do you want it?",
-                        value: $preferencesManager.preferences.calorieConsciousness,
-                        labels: ["Low", "Moderate", "High"]
-                    )
-                    
-                    // Protein Preference
-                    PreferenceSection(
-                        title: "Protein Preference",
-                        subtitle: "How much focus on protein?",
-                        value: $preferencesManager.preferences.proteinPreference,
-                        labels: ["Low", "Moderate", "High"]
-                    )
-                    
-                    // Spice Preference
-                    PreferenceSection(
-                        title: "Spice Level",
-                        subtitle: "How spicy should it be?",
-                        value: $preferencesManager.preferences.spiceLevel,
-                        labels: ["Not Spicy", "Mild", "Hot"]
-                    )
-                    
-                    // Save Preferences Button
-                    Section {
-                        Button(action: {
-                            preferencesManager.save()
-                            showSaved = true
-                        }) {
+                    // Preferences Form
+                    Form {
+                        
+                        // Sync Status
+                        Section {
                             HStack {
-                                Spacer()
-                                Text("Save Preferences")
-                                    .fontWeight(.semibold)
-                                Spacer()
+                                Image(systemName: "cloud.fill")
+                                    .foregroundColor(.neonBlue)
+                                Text("Preferences sync with your account")
+                                    .font(.subheadline)
+                                    .foregroundColor(.gray)
                             }
                         }
-                        .tint(.neonBlue)
+                        .listRowBackground(Color.cardBackground)
+                        
+                        // Effort Preference
+                        PreferenceSection(
+                            title: "Effort Level",
+                            subtitle: "How much time do you have?",
+                            value: $preferencesManager.preferences.effortLevel,
+                            labels: ["Quick", "Moderate", "Intricate"]
+                        )
+                        
+                        // Skill Preference
+                        PreferenceSection(
+                            title: "Skill Level",
+                            subtitle: "What is your cooking confidence?",
+                            value: $preferencesManager.preferences.skillLevel,
+                            labels: ["Beginner", "Intermediate", "Advanced"]
+                        )
+                        
+                        // Calorie Preference
+                        PreferenceSection(
+                            title: "Calorie Consciousness",
+                            subtitle: "How low-calorie do you want it?",
+                            value: $preferencesManager.preferences.calorieConsciousness,
+                            labels: ["Low", "Moderate", "High"]
+                        )
+                        
+                        // Protein Preference
+                        PreferenceSection(
+                            title: "Protein Preference",
+                            subtitle: "How much focus on protein?",
+                            value: $preferencesManager.preferences.proteinPreference,
+                            labels: ["Low", "Moderate", "High"]
+                        )
+                        
+                        // Spice Preference
+                        PreferenceSection(
+                            title: "Spice Level",
+                            subtitle: "How spicy should it be?",
+                            value: $preferencesManager.preferences.spiceLevel,
+                            labels: ["Not Spicy", "Mild", "Hot"]
+                        )
+                        
+                        // Save Preferences Button
+                        Section {
+                            Button(action: savePreferences) {
+                                HStack {
+                                    Spacer()
+                                    if isSaving {
+                                        ProgressView()
+                                            .tint(.neonBlue)
+                                    } else {
+                                        Text("Save Preferences")
+                                            .fontWeight(.semibold)
+                                    }
+                                    Spacer()
+                                }
+                            }
+                            .tint(.neonBlue)
+                            .disabled(isSaving)
+                        }
+                        .listRowBackground(Color.cardBackground)
+                        
                     }
-                    .listRowBackground(Color.cardBackground)
-                    
+                    .scrollContentBackground(.hidden)
                 }
-                .scrollContentBackground(.hidden)
-                
             }
         }
+        .task {
+            await loadPreferences()
+        }
         
-        // Save Preferences Alert
+        // Handle Errors
         .alert("Saved!", isPresented: $showSaved) {
             Button("OK", role: .cancel) {}
         } message: {
-            Text("Your default preferences have been updated.")
+            Text("Your preferences have been synced to your account.")
         }
-        
-        // Logout Confirmation Alert
+        .alert("Error", isPresented: $showError) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text(errorMessage)
+        }
         .alert("Log Out", isPresented: $showLogoutConfirm) {
             Button("Cancel", role: .cancel) {}
-            Button("Log Out", role: .destructive) {
-                logout()
-            }
+            Button("Log Out", role: .destructive) { logout() }
         } message: {
             Text("Are you sure you want to log out?")
         }
         
     }
     
-    // Logout Function
-    private func logout() {
+    // Load User Preferences
+    private func loadPreferences() async {
+        
+        isLoading = true
+        
+        do {
+            let serverPrefs = try await NetworkService.shared.getPreferences()
+            await MainActor.run {
+                preferencesManager.preferences = serverPrefs
+                preferencesManager.save()
+            }
+        } catch {
+            print("Failed to load server preferences, using local: \(error)")
+        }
+        
+        await MainActor.run {
+            isLoading = false
+        }
+        
+    }
+    
+    // Save User Preferences
+    private func savePreferences() {
+        
         Task {
+            
+            isSaving = true
+            
+            do {
+                let updatedPrefs = try await NetworkService.shared.updatePreferences(preferencesManager.preferences)
+                await MainActor.run {
+                    preferencesManager.preferences = updatedPrefs
+                    preferencesManager.save() // Also save locally
+                    showSaved = true
+                }
+            } catch {
+                await MainActor.run {
+                    errorMessage = "Failed to save preferences: \(error.localizedDescription)"
+                    showError = true
+                }
+            }
+            
+            await MainActor.run {
+                isSaving = false
+            }
+            
+        }
+        
+    }
+    
+    // Log Out
+    private func logout() {
+        
+        Task {
+            
             isLoggingOut = true
             
             do {
@@ -162,11 +241,13 @@ struct Settings: View {
             await MainActor.run {
                 isLoggingOut = false
             }
+            
         }
+        
     }
 }
 
-// Helper Preference Section Component
+// PreferenceSection Component
 struct PreferenceSection: View {
     
     let title: String
@@ -175,6 +256,7 @@ struct PreferenceSection: View {
     let labels: [String]
     
     var body: some View {
+        
         Section {
             VStack(alignment: .leading, spacing: 10) {
                 
@@ -200,12 +282,8 @@ struct PreferenceSection: View {
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 10)
                             .background(value == level ?
-                                        LinearGradient(colors: [.neonBlue, .neonPink],
-                                                     startPoint: .topLeading,
-                                                     endPoint: .bottomTrailing) :
-                                        LinearGradient(colors: [Color.gray.opacity(0.5)],
-                                                     startPoint: .top,
-                                                     endPoint: .bottom))
+                                        LinearGradient(colors: [.neonBlue, .neonPink], startPoint: .topLeading, endPoint: .bottomTrailing) :
+                                        LinearGradient(colors: [Color.gray.opacity(0.5)], startPoint: .top, endPoint: .bottom))
                             .foregroundColor(.white)
                             .cornerRadius(10)
                             .shadow(color: value == level ? .neonPink.opacity(0.5) : .clear,
@@ -221,7 +299,9 @@ struct PreferenceSection: View {
                 .foregroundColor(.neonBlue)
         }
         .listRowBackground(Color.cardBackground)
+        
     }
+    
 }
 
 #Preview {

@@ -5,3 +5,4 @@ requests==2.32.3
 supabase==2.10.0
 python-dotenv==1.0.1
 pydantic==2.10.0
+PyJWT==2.8.0

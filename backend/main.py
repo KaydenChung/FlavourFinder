@@ -1,7 +1,7 @@
 # Imports
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from routers import script
+from routers import script, preferences
 from dotenv import load_dotenv
 
 # Load Environment Variables
@@ -21,6 +21,7 @@ app.add_middleware(
 
 # Include Routers
 app.include_router(script.router)
+app.include_router(preferences.router)
 
 # Root Endpoint
 @app.get("/")

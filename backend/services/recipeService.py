@@ -36,7 +36,7 @@ class recipeService:
         
         # Create Prompt
         prompt = f"""
-        Generate a unique recipe based on these preferences:
+        Generate a simple, easy to cook recipe based on these preferences:
         Return ONLY valid JSON with this exact structure (no markdown, no extra text):
         {{
             "title": "Recipe Name/Name of Dish",
@@ -58,7 +58,7 @@ class recipeService:
         {preferences_text}
         {existing_recipes_text}
         Make the recipe realistic, achievable, and align it with the user's preferences above.
-        Ensure the recipe is completely unique from any previously generated recipes.
+        Ensure the recipe is unique from any previously generated recipes.
         Return ONLY the JSON object."""
 
         # Make Request to Groq
