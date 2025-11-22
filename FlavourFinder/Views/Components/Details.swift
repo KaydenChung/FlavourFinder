@@ -21,8 +21,6 @@ struct Details: View {
                 
                 // Header
                 HStack {
-                    
-                    // Done Button
                     Button(action: { dismiss() }) {
                         Text("Done")
                             .foregroundColor(.neonBlue)
@@ -31,13 +29,11 @@ struct Details: View {
                     
                     Spacer()
                     
-                    // Recipe Title
                     Text(recipe.title)
                         .font(.headline)
                         .fontWeight(.semibold)
                         .foregroundStyle(LinearGradient(colors: [.neonBlue, .neonPink], startPoint: .leading, endPoint: .trailing))
                         .lineLimit(1)
-                    
                 }
                 .padding(.horizontal, 25)
                 .padding(.vertical, 25)
@@ -45,25 +41,37 @@ struct Details: View {
                 
                 // Content
                 ScrollView {
-                    
                     VStack(alignment: .leading, spacing: 25) {
                         
                         // Recipe Image
-                        AsyncImage(url: URL(string: recipe.imageUrl)) { phase in
-                            if let image = phase.image {
-                                image
-                                    .resizable()
-                                    .scaledToFill()
-                                    .frame(height: 250)
-                                    .clipped()
-                            } else {
-                                Image(recipe.imageUrl)
-                                    .resizable()
-                                    .scaledToFill()
-                                    .frame(height: 250)
-                                    .clipped()
+                        GeometryReader { geo in
+                            AsyncImage(url: URL(string: recipe.imageUrl)) { phase in
+                                switch phase {
+                                case .success(let image):
+                                    image
+                                        .resizable()
+                                        .aspectRatio(contentMode: .fill)
+                                        .frame(width: geo.size.width, height: 250)
+                                        .clipped()
+                                case .failure:
+                                    Rectangle()
+                                        .fill(Color.cardBackground)
+                                        .overlay {
+                                            Image(systemName: "photo")
+                                                .font(.largeTitle)
+                                                .foregroundColor(.gray)
+                                        }
+                                default:
+                                    Rectangle()
+                                        .fill(Color.darkBackground)
+                                        .overlay {
+                                            ProgressView().tint(.neonPink)
+                                        }
+                                }
                             }
+                            .frame(width: geo.size.width, height: 250)
                         }
+                        .frame(height: 250)
                         
                         VStack(alignment: .leading, spacing: 25) {
                             
@@ -83,7 +91,6 @@ struct Details: View {
                                         PreferenceRow(icon: "bolt", label: "Protein", value: prefs.getDisplayText(for: .protein))
                                         PreferenceRow(icon: "flame.fill", label: "Spice", value: prefs.getDisplayText(for: .spice))
                                     }
-                                    
                                     .padding()
                                     .background(Color.cardBackground.opacity(0.5))
                                     .cornerRadius(10)
@@ -92,6 +99,7 @@ struct Details: View {
                                 
                                 Divider()
                                     .background(Color.gray.opacity(0.5))
+                                
                             }
                             
                             // Macros
@@ -163,34 +171,46 @@ struct Details: View {
                             
                         }
                         .padding()
+                        
                     }
                 }
             }
         }
+        
     }
+    
 }
 
 // Helper for Preference Row
 struct PreferenceRow: View {
+    
     let icon: String
     let label: String
     let value: String
     
     var body: some View {
+        
         HStack {
+            
             Image(systemName: icon)
                 .foregroundColor(.neonPink)
                 .frame(width: 20)
+            
             Text(label)
                 .foregroundColor(.gray)
                 .font(.subheadline)
+            
             Spacer()
+            
             Text(value)
                 .foregroundColor(.white)
                 .font(.subheadline)
                 .fontWeight(.semibold)
+            
         }
+        
     }
+    
 }
 
 // Helper for Macro Details
@@ -200,7 +220,9 @@ struct MacroDetails: View {
     let value: String
     
     var body: some View {
+        
         VStack(spacing: 4) {
+            
             Text(value)
                 .font(.headline)
                 .foregroundStyle(LinearGradient(colors: [.neonPink, .neonBlue],
@@ -209,6 +231,9 @@ struct MacroDetails: View {
             Text(label)
                 .font(.caption)
                 .foregroundColor(.gray)
+            
         }
+        
     }
+    
 }

@@ -23,11 +23,9 @@ class recipeService:
         existing_recipes_text = ""
         if existing_recipes and len(existing_recipes) > 0:
             existing_recipes_text = f"""
-            IMPORTANT: The user has already generated these recipes:
+            The user has already generated these recipes:
             {', '.join(existing_recipes)}
-
-            You MUST generate something completely different from these recipes.
-            Do NOT create variations or similar dishes to the ones listed above.
+            Ensure the recipe is unique from these previously generated recipes.
             Choose a different cuisine, cooking method, or main ingredient.
             """
         
@@ -36,7 +34,7 @@ class recipeService:
         
         # Create Prompt
         prompt = f"""
-        Generate a simple, easy to cook recipe based on these preferences:
+        Generate an simple, easy to cook, meal prep recipe based on these preferences:
         Return ONLY valid JSON with this exact structure (no markdown, no extra text):
         {{
             "title": "Recipe Name/Name of Dish",
@@ -57,8 +55,7 @@ class recipeService:
         }}
         {preferences_text}
         {existing_recipes_text}
-        Make the recipe realistic, achievable, and align it with the user's preferences above.
-        Ensure the recipe is unique from any previously generated recipes.
+        The recipe should include easy to find ingredients and align with the preferences.
         Return ONLY the JSON object."""
 
         # Make Request to Groq
