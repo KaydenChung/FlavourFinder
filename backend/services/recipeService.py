@@ -26,7 +26,7 @@ class recipeService:
             The user has already generated these recipes:
             {', '.join(existing_recipes)}
             Ensure the recipe is unique from these previously generated recipes.
-            Choose a different cuisine, cooking method, or main ingredient.
+            Choose different ingredients, cooking methods, or dish type.
             """
         
         # Convert Preferences to String
@@ -36,11 +36,12 @@ class recipeService:
         prompt = f"""
         Generate an simple, easy to cook, meal prep recipe based on these preferences:
         Return ONLY valid JSON with this exact structure (no markdown, no extra text):
+
         {{
             "title": "Recipe Name/Name of Dish",
             "description": "A one sentence description",
             "cook_time": (int) total cook time in minutes,
-            "tags": ["relevant tags (max 3)", ...],
+            "tags": ["dish type", "main ingredient", "secondary ingredient"],
             "ingredients": ["ingredient with quantity", ...],
             "steps": [
                 {{"step_number": 1, "instruction": "First step..."}},
@@ -53,9 +54,10 @@ class recipeService:
                 "fat": (int) grams of fat
             }}
         }}
+
         {preferences_text}
         {existing_recipes_text}
-        The recipe should include easy to find ingredients and align with the preferences.
+        The recipe should include common household ingredients for university students.
         Return ONLY the JSON object."""
 
         # Make Request to Groq
@@ -84,6 +86,7 @@ class recipeService:
         Here's a recipe:
         {json.dumps(original_recipe, indent=2)}
         User wants to modify it: "{modification}"
+
         Return ONLY the updated JSON with the same structure, incorporating their changes.
         No markdown, just the JSON object."""
 

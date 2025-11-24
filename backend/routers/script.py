@@ -40,6 +40,7 @@ async def generate_recipe(
         # Get Image from Unsplash
         image_url = image_service.get_recipe_image(
             recipe_data["title"],
+            recipe_data["tags"],
             recipe_data["ingredients"]
         )
         
@@ -195,7 +196,6 @@ async def test_generation():
     try:
 
         from models.recipe import UserPreferences
-        
         recipe_data = recipe_service.generate_recipe(preferences=UserPreferences())
         image_url = image_service.get_recipe_image(recipe_data["title"], recipe_data["ingredients"])
         

@@ -15,10 +15,20 @@ enum NetworkError: Error {
 
 class NetworkService {
     
+    // Base URL
     static let shared = NetworkService()
     private let baseURL = "https://flavourfinder-5dkq.onrender.com"
     
-    private init() {}
+    // Custom Session
+    private let session: URLSession
+    
+    // Longer Timeout for Render Cold Starts
+    private init() {
+        let config = URLSessionConfiguration.default
+        config.timeoutIntervalForRequest = 120
+        config.timeoutIntervalForResource = 120
+        self.session = URLSession(configuration: config)
+    }
     
     // Validate Server HTTP Response
     private func validate(_ response: URLResponse) throws {

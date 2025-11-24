@@ -148,7 +148,7 @@ struct SignUp: View {
                 isSignUp = false
             }
         } message: {
-            Text("Your account has been created successfully. You can now sign in and start generating delicious recipes!")
+            Text("Your account has been created! You can now sign in.")
         }
         
     }

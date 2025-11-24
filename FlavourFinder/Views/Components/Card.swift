@@ -86,10 +86,12 @@ struct Card: View {
                         .foregroundStyle(LinearGradient(colors: [.neonBlue, .neonPink], startPoint: .leading, endPoint: .trailing))
                         .font(.subheadline)
                         .fontWeight(.medium)
+                    
                     Label("\(recipe.macros.calories) cal", systemImage: "flame.fill")
                         .foregroundStyle(LinearGradient(colors: [.neonBlue, .neonPink], startPoint: .leading, endPoint: .trailing))
                         .font(.subheadline)
                         .fontWeight(.medium)
+                    
                     Label("\(recipe.macros.protein)g", systemImage: "bolt.fill")
                         .foregroundStyle(LinearGradient(colors: [.neonBlue, .neonPink], startPoint: .leading, endPoint: .trailing))
                         .font(.subheadline)
@@ -116,8 +118,8 @@ struct Card: View {
                     }
                     .buttonStyle(.plain)
                     .background(isSaved ?
-                        LinearGradient(colors: [.green.opacity(0.7)], startPoint: .leading, endPoint: .trailing) :
-                        LinearGradient(colors: [Color.gray.opacity(0.5)], startPoint: .leading, endPoint: .trailing))
+                                LinearGradient(colors: [.green.opacity(0.7)], startPoint: .leading, endPoint: .trailing) :
+                                    LinearGradient(colors: [Color.gray.opacity(0.5)], startPoint: .leading, endPoint: .trailing))
                     .foregroundColor(.white)
                     .cornerRadius(10)
                     .disabled(isSaving || isSaved)
@@ -148,8 +150,8 @@ struct Card: View {
                     .foregroundColor(.white)
                     .cornerRadius(10)
                     .shadow(color: .neonBlue.opacity(0.5), radius: 5)
+                    
                 }
-                
             }
             .padding(25)
         }
@@ -176,15 +178,14 @@ struct Card: View {
         } message: {
             Text(saveErrorMessage)
         }
+        .id(recipe.id)
         
     }
     
     private func saveRecipe() {
         
         Task {
-            
             isSaving = true
-            
             do {
                 try await NetworkService.shared.saveRecipe(recipe)
                 await MainActor.run {
@@ -202,7 +203,6 @@ struct Card: View {
                     }
                 }
             }
-            
             await MainActor.run {
                 isSaving = false
             }

@@ -111,9 +111,14 @@ struct Saved: View {
         isLoading = true
         do {
             savedRecipes = try await NetworkService.shared.getSavedRecipes()
+        } catch is CancellationError {
+            // Ignore Cancellation Error
         } catch {
+            
+            // Handle Errors
             errorMessage = "Failed to load saved recipes: \(error.localizedDescription)"
             showError = true
+            
         }
         isLoading = false
     }
