@@ -78,12 +78,10 @@ struct Details: View {
                             // Preferences Used
                             if let prefs = recipe.preferences {
                                 VStack(alignment: .leading, spacing: 10) {
-                                    
                                     Text("Generation Preferences")
                                         .font(.title3)
                                         .fontWeight(.bold)
                                         .foregroundColor(.neonBlue)
-                                    
                                     VStack(alignment: .leading, spacing: 5) {
                                         PreferenceRow(icon: "gauge", label: "Effort", value: prefs.getDisplayText(for: .effort))
                                         PreferenceRow(icon: "star", label: "Skill", value: prefs.getDisplayText(for: .skill))
@@ -94,7 +92,6 @@ struct Details: View {
                                     .padding()
                                     .background(Color.cardBackground.opacity(0.5))
                                     .cornerRadius(10)
-                                    
                                 }
                                 
                                 Divider()
@@ -104,19 +101,16 @@ struct Details: View {
                             
                             // Macros
                             VStack(alignment: .leading, spacing: 10) {
-                                
                                 Text("Nutrition")
                                     .font(.title3)
                                     .fontWeight(.bold)
                                     .foregroundColor(.neonBlue)
-                                
                                 HStack(spacing: 25) {
                                     MacroDetails(label: "Calories", value: "\(recipe.macros.calories)")
                                     MacroDetails(label: "Protein", value: "\(recipe.macros.protein)g")
                                     MacroDetails(label: "Carbs", value: "\(recipe.macros.carbs)g")
                                     MacroDetails(label: "Fat", value: "\(recipe.macros.fat)g")
                                 }
-                                
                             }
                             
                             Divider()
@@ -124,12 +118,10 @@ struct Details: View {
                             
                             // Ingredients
                             VStack(alignment: .leading, spacing: 10) {
-                                
                                 Text("Ingredients")
                                     .font(.title3)
                                     .fontWeight(.bold)
                                     .foregroundColor(.neonBlue)
-                                
                                 ForEach(Array(recipe.ingredients.enumerated()), id: \.offset) { _, ingredient in
                                     HStack(alignment: .top) {
                                         Text("•")
@@ -140,7 +132,6 @@ struct Details: View {
                                     }
                                     .font(.subheadline)
                                 }
-                                
                             }
                             
                             Divider()
@@ -148,12 +139,10 @@ struct Details: View {
                             
                             // Steps
                             VStack(alignment: .leading, spacing: 10) {
-                                
                                 Text("Instructions")
                                     .font(.title3)
                                     .fontWeight(.bold)
                                     .foregroundColor(.neonBlue)
-                                
                                 ForEach(recipe.steps) { step in
                                     HStack(alignment: .top, spacing: 10) {
                                         Text("\(step.stepNumber)")
@@ -166,7 +155,6 @@ struct Details: View {
                                             .foregroundColor(.white)
                                     }
                                 }
-                                
                             }
                             
                         }
@@ -189,26 +177,19 @@ struct PreferenceRow: View {
     let value: String
     
     var body: some View {
-        
         HStack {
-            
             Image(systemName: icon)
                 .foregroundColor(.neonPink)
                 .frame(width: 20)
-            
             Text(label)
                 .foregroundColor(.gray)
                 .font(.subheadline)
-            
             Spacer()
-            
             Text(value)
                 .foregroundColor(.white)
                 .font(.subheadline)
                 .fontWeight(.semibold)
-            
         }
-        
     }
     
 }
@@ -220,20 +201,14 @@ struct MacroDetails: View {
     let value: String
     
     var body: some View {
-        
-        VStack(spacing: 4) {
-            
+        VStack(spacing: 5) {
             Text(value)
                 .font(.headline)
-                .foregroundStyle(LinearGradient(colors: [.neonPink, .neonBlue],
-                                              startPoint: .leading,
-                                              endPoint: .trailing))
+                .foregroundStyle(LinearGradient(colors: [.neonPink, .neonBlue], startPoint: .leading, endPoint: .trailing))
             Text(label)
                 .font(.caption)
                 .foregroundColor(.gray)
-            
         }
-        
     }
     
 }

@@ -21,7 +21,7 @@ struct LogIn: View {
         VStack(spacing: 20) {
             
             // Email Field
-            VStack(alignment: .leading, spacing: 8) {
+            VStack(alignment: .leading, spacing: 10) {
                 Text("Email")
                     .font(.subheadline)
                     .foregroundColor(.gray)
@@ -38,12 +38,12 @@ struct LogIn: View {
                     .cornerRadius(10)
                     .overlay(
                         RoundedRectangle(cornerRadius: 10)
-                            .stroke(Color.neonBlue.opacity(0.3), lineWidth: 1)
+                            .stroke(Color.neonBlue.opacity(0.5), lineWidth: 1)
                     )
             }
             
             // Password Field
-            VStack(alignment: .leading, spacing: 8) {
+            VStack(alignment: .leading, spacing: 10) {
                 Text("Password")
                     .font(.subheadline)
                     .foregroundColor(.gray)
@@ -59,14 +59,14 @@ struct LogIn: View {
                     .cornerRadius(10)
                     .overlay(
                         RoundedRectangle(cornerRadius: 10)
-                            .stroke(Color.neonBlue.opacity(0.3), lineWidth: 1)
+                            .stroke(Color.neonBlue.opacity(0.5), lineWidth: 1)
                     )
             }
             
             // Log In Button
             Button(action: logIn) {
                 ZStack {
-                    RoundedRectangle(cornerRadius: 12)
+                    RoundedRectangle(cornerRadius: 10)
                         .fill(LinearGradient(
                             colors: [.neonBlue, .neonPink],
                             startPoint: .leading,
@@ -84,7 +84,7 @@ struct LogIn: View {
                             .foregroundColor(.white)
                     }
                 }
-                .frame(height: 55)
+                .frame(height: 50)
             }
             .disabled(isLoading || email.isEmpty || password.isEmpty)
             .opacity(email.isEmpty || password.isEmpty ? 0.5 : 1.0)
@@ -111,13 +111,13 @@ struct LogIn: View {
         } message: {
             Text(errorMessage)
         }
+        
     }
     
     // Log In Function
     private func logIn() {
         Task {
             isLoading = true
-            
             do {
                 try await authManager.signIn(email: email, password: password)
             } catch {

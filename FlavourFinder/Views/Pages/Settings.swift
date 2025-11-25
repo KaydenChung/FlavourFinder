@@ -177,9 +177,7 @@ struct Settings: View {
     
     // Load User Preferences
     private func loadPreferences() async {
-        
         isLoading = true
-        
         do {
             let serverPrefs = try await NetworkService.shared.getPreferences()
             await MainActor.run {
@@ -189,20 +187,15 @@ struct Settings: View {
         } catch {
             print("Failed to load server preferences, using local: \(error)")
         }
-        
         await MainActor.run {
             isLoading = false
         }
-        
     }
     
     // Save User Preferences
     private func savePreferences() {
-        
         Task {
-            
             isSaving = true
-            
             do {
                 let updatedPrefs = try await NetworkService.shared.updatePreferences(preferencesManager.preferences)
                 await MainActor.run {
@@ -216,35 +209,27 @@ struct Settings: View {
                     showError = true
                 }
             }
-            
             await MainActor.run {
                 isSaving = false
             }
-            
         }
-        
     }
     
     // Log Out
     private func logout() {
-        
         Task {
-            
             isLoggingOut = true
-            
             do {
                 try await authManager.signOut()
             } catch {
                 print("Error logging out: \(error)")
             }
-            
             await MainActor.run {
                 isLoggingOut = false
             }
-            
         }
-        
     }
+    
 }
 
 // PreferenceSection Component
@@ -293,7 +278,7 @@ struct PreferenceSection: View {
                     }
                 }
             }
-            .padding(.vertical, 5)
+            .padding(.vertical, 10)
         } header: {
             Text(title)
                 .foregroundColor(.neonBlue)

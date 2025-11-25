@@ -23,7 +23,7 @@ struct SignUp: View {
         VStack(spacing: 20) {
             
             // Email Field
-            VStack(alignment: .leading, spacing: 8) {
+            VStack(alignment: .leading, spacing: 10) {
                 Text("Email")
                     .font(.subheadline)
                     .foregroundColor(.gray)
@@ -40,12 +40,12 @@ struct SignUp: View {
                     .cornerRadius(10)
                     .overlay(
                         RoundedRectangle(cornerRadius: 10)
-                            .stroke(Color.neonBlue.opacity(0.3), lineWidth: 1)
+                            .stroke(Color.neonBlue.opacity(0.5), lineWidth: 1)
                     )
             }
             
             // Password Field
-            VStack(alignment: .leading, spacing: 8) {
+            VStack(alignment: .leading, spacing: 10) {
                 Text("Password")
                     .font(.subheadline)
                     .foregroundColor(.gray)
@@ -61,12 +61,12 @@ struct SignUp: View {
                     .cornerRadius(10)
                     .overlay(
                         RoundedRectangle(cornerRadius: 10)
-                            .stroke(Color.neonBlue.opacity(0.3), lineWidth: 1)
+                            .stroke(Color.neonBlue.opacity(0.5), lineWidth: 1)
                     )
             }
             
             // Confirm Password Field
-            VStack(alignment: .leading, spacing: 8) {
+            VStack(alignment: .leading, spacing: 10) {
                 Text("Confirm Password")
                     .font(.subheadline)
                     .foregroundColor(.gray)
@@ -82,7 +82,7 @@ struct SignUp: View {
                     .cornerRadius(10)
                     .overlay(
                         RoundedRectangle(cornerRadius: 10)
-                            .stroke(Color.neonBlue.opacity(0.3), lineWidth: 1)
+                            .stroke(Color.neonBlue.opacity(0.5), lineWidth: 1)
                     )
             }
             
@@ -96,7 +96,7 @@ struct SignUp: View {
             // Sign Up Button
             Button(action: signUp) {
                 ZStack {
-                    RoundedRectangle(cornerRadius: 12)
+                    RoundedRectangle(cornerRadius: 10)
                         .fill(LinearGradient(
                             colors: [.neonBlue, .neonPink],
                             startPoint: .leading,
@@ -114,7 +114,7 @@ struct SignUp: View {
                             .foregroundColor(.white)
                     }
                 }
-                .frame(height: 55)
+                .frame(height: 50)
             }
             .disabled(isLoading || !isValid)
             .opacity(isValid ? 1.0 : 0.5)
@@ -163,11 +163,8 @@ struct SignUp: View {
     
     // Sign Up Function
     private func signUp() {
-        
         Task {
-            
             isLoading = true
-            
             do {
                 try await authManager.signUp(email: email, password: password)
                 await MainActor.run {
@@ -181,9 +178,7 @@ struct SignUp: View {
                     showError = true
                 }
             }
-            
         }
-        
     }
     
 }

@@ -64,7 +64,7 @@ struct Preferences: View {
                     
                     // Preference Information
                     Section {
-                        Text("Adjust your preferences for this recipe generation. These settings will temporarily override your defaults.")
+                        Text("Adjust your preferences for this recipe generation.")
                             .font(.subheadline)
                             .foregroundColor(.gray)
                     }

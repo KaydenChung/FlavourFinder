@@ -45,18 +45,18 @@ struct Auth: View {
                     
                     // App Title
                     Text("Flavour Finder")
-                        .font(.system(size: 40, weight: .bold))
+                        .font(.system(size: 50, weight: .bold))
                         .foregroundStyle(LinearGradient(
                             colors: [.neonBlue, .neonPink],
                             startPoint: .leading,
                             endPoint: .trailing
                         ))
-                    Text("AI-Powered Recipe Generation")
+                    Text("AI-Powered Recipe Assistant")
                         .font(.subheadline)
                         .foregroundColor(.gray)
                     
                 }
-                .padding(.bottom, 60)
+                .padding(.bottom, 50)
                 
                 // Auth Form
                 if isSignUp {
@@ -68,7 +68,7 @@ struct Auth: View {
                 Spacer()
                 
             }
-            .padding(.horizontal, 30)
+            .padding(.horizontal, 25)
             
         }
     }

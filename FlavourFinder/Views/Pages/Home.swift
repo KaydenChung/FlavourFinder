@@ -12,6 +12,8 @@ struct Home: View {
     @State private var showError = false
     @State private var errorMessage = ""
     @State private var showPreferences = false
+    @State private var loadingProgress: CGFloat = 0
+    @State private var loadingRotation: Double = 0
     
     var body: some View {
         
@@ -74,7 +76,7 @@ struct Home: View {
                                     .font(.title2)
                                     .fontWeight(.semibold)
                                     .foregroundColor(.white)
-                                Text("Tap the ✨ button to generate your first AI recipe")
+                                Text("Tap the ✨ button to generate an AI recipe")
                                     .font(.subheadline)
                                     .foregroundColor(.gray)
                                     .multilineTextAlignment(.center)
@@ -99,22 +101,64 @@ struct Home: View {
             // Loading Overlay
             if isGenerating {
                 ZStack {
-                    Color.darkBackground.ignoresSafeArea()
+                    Color.darkBackground.opacity(0.75).ignoresSafeArea()
                     VStack(spacing: 25) {
-                        ProgressView()
-                            .scaleEffect(1.5)
-                            .tint(.neonBlue)
-                        Text("Generating delicious recipe...")
-                            .font(.headline)
-                            .foregroundColor(.white)
+                        ZStack {
+                            Circle()
+                                .fill(
+                                    LinearGradient(
+                                        colors: [.neonBlue.opacity(0.5), .neonPink.opacity(0.5)],
+                                        startPoint: .topLeading,
+                                        endPoint: .bottomTrailing
+                                    )
+                                )
+                                .frame(width: 100, height: 100)
+                                .blur(radius: 25)
+                            Image(systemName: "sparkles")
+                                .font(.system(size: 50, weight: .bold))
+                                .foregroundStyle(
+                                    LinearGradient(
+                                        colors: [.neonBlue, .neonPink],
+                                        startPoint: .topLeading,
+                                        endPoint: .bottomTrailing
+                                    )
+                                )
+                                .rotationEffect(.degrees(loadingRotation))
+                                .onAppear {
+                                    withAnimation(.linear(duration: 2).repeatForever(autoreverses: false)) {
+                                        loadingRotation = 360
+                                    }
+                                }
+                        }
+                        VStack(spacing: 10) {
+                            Text("Generating Recipe...")
+                                .font(.headline)
+                                .foregroundColor(.white)
+                            GeometryReader { geometry in
+                                ZStack(alignment: .leading) {
+                                    RoundedRectangle(cornerRadius: 10)
+                                        .fill(Color.cardBackground)
+                                        .frame(height: 10)
+                                    RoundedRectangle(cornerRadius: 10)
+                                        .fill(LinearGradient(colors: [.neonBlue, .neonPink], startPoint: .leading, endPoint: .trailing))
+                                        .frame(width: geometry.size.width * loadingProgress, height: 10)
+                                        .animation(.easeInOut(duration: 0.5), value: loadingProgress)
+                                }
+                            }
+                            .frame(height: 10)
+                            .onAppear {
+                                startLoadingAnimation()
+                            }
+                        }
                     }
-                    .padding(25)
+                    .padding(50)
                     .background(Color.cardBackground)
                     .cornerRadius(25)
-                    .shadow(color: .neonPink.opacity(0.3), radius: 25)
+                    .shadow(color: .neonPink.opacity(0.5), radius: 25)
+                    .shadow(color: .neonBlue.opacity(0.5), radius: 25)
+                    .padding(.horizontal, 50)
                 }
             }
-            
         }
         
         // Display Preferences View
@@ -159,11 +203,22 @@ struct Home: View {
                 // Handle Errors
                 await MainActor.run {
                     isGenerating = false
-                    errorMessage = "Failed to generate recipe: \(error.localizedDescription)"
+                    errorMessage = "Failed to Generate Recipe: \(error.localizedDescription)"
                     showError = true
                 }
                 
             }
         }
     }
+    
+    private func startLoadingAnimation() {
+        loadingProgress = 0
+        loadingRotation = 0
+        
+        withAnimation(.easeOut(duration: 10.0)) {
+            loadingProgress = 0.75
+        }
+        
+    }
+    
 }

@@ -31,7 +31,7 @@ struct Saved: View {
                     // Refresh Button
                     Button(action: { Task { await loadSavedRecipes() } }) {
                         Image(systemName: "arrow.clockwise")
-                            .font(.system(size: 18, weight: .semibold))
+                            .font(.system(size: 20, weight: .semibold))
                             .foregroundColor(.neonBlue)
                     }
                     .disabled(isLoading)
@@ -85,7 +85,7 @@ struct Saved: View {
         VStack(spacing: 25) {
             ZStack {
                 Circle()
-                    .fill(LinearGradient(colors: [.neonBlue.opacity(0.3), .neonPink.opacity(0.3)], startPoint: .topLeading, endPoint: .bottomTrailing))
+                    .fill(LinearGradient(colors: [.neonBlue.opacity(0.5), .neonPink.opacity(0.5)], startPoint: .topLeading, endPoint: .bottomTrailing))
                     .frame(width: 150, height: 150)
                     .blur(radius: 25)
                 Image(systemName: "bookmark.fill")
@@ -96,7 +96,7 @@ struct Saved: View {
                 .font(.title2)
                 .fontWeight(.semibold)
                 .foregroundColor(.white)
-            Text("Tap the bookmark on any recipe to save it here")
+            Text("Saved recipes will appear here.")
                 .font(.subheadline)
                 .foregroundColor(.gray)
                 .multilineTextAlignment(.center)
@@ -116,7 +116,7 @@ struct Saved: View {
         } catch {
             
             // Handle Errors
-            errorMessage = "Failed to load saved recipes: \(error.localizedDescription)"
+            errorMessage = "Failed to Load Saved Recipes: \(error.localizedDescription)"
             showError = true
             
         }
@@ -168,7 +168,7 @@ struct SavedCard: View {
             .frame(height: 200)
             
             // Recipe Details
-            VStack(alignment: .leading, spacing: 12) {
+            VStack(alignment: .leading, spacing: 10) {
                 
                 // Recipe Title and Description
                 Text(recipe.title)
@@ -219,7 +219,7 @@ struct SavedCard: View {
                         .padding(.vertical, 10)
                     }
                     .buttonStyle(.plain)
-                    .background(Color.red.opacity(0.8))
+                    .background(Color.red.opacity(0.75))
                     .foregroundColor(.white)
                     .cornerRadius(10)
                     .disabled(isUnsaving)
@@ -227,11 +227,11 @@ struct SavedCard: View {
                 }
                 
             }
-            .padding(20)
+            .padding(25)
         }
         .background(Color.cardBackground)
-        .cornerRadius(20)
-        .shadow(color: .black.opacity(0.3), radius: 15, y: 5)
+        .cornerRadius(25)
+        .shadow(color: .black.opacity(0.5), radius: 25, y: 10)
         
         // Show Details View
         .sheet(isPresented: $showFullRecipe) {
@@ -250,25 +250,20 @@ struct SavedCard: View {
     
     // Unsave Recipe
     private func unsaveRecipe() {
-        
         Task {
-            
             isUnsaving = true
-            
             do {
                 try await NetworkService.shared.unsaveRecipe(recipeId: recipe.id)
                 await MainActor.run {
                     onUnsave(recipe)
                 }
             } catch {
-                print("Failed to unsave: \(error)")
+                print("Failed to Unsave: \(error)")
             }
-            
             await MainActor.run {
                 isUnsaving = false
             }
-            
         }
-        
     }
+    
 }

@@ -58,7 +58,7 @@ struct Modifications: View {
                             .tint(.neonPink)
                             .padding(12)
                         if modification.isEmpty {
-                            Text("e.g. Different ingredient, Less cook time")
+                            Text("e.g. Different ingredient, Less cooking time")
                                 .foregroundColor(.neonPink.opacity(0.5))
                                 .padding(.horizontal, 15)
                                 .padding(.vertical, 25)
@@ -111,7 +111,7 @@ struct Modifications: View {
     // Modify Recipe
     private func modifyRecipe() {
         Task {
-            
+
             isModifying = true
             
             do {
